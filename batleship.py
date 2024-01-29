@@ -1,7 +1,43 @@
 import os
 
+
+class Player:
+    column_key = [" A "," B "," C "," D "," E " ," F "," G "," H "," I "," J "]
+    row_key = [" 1"," 2"," 3"," 4"," 5"," 6"," 7"," 8"," 9"," 10"]
+    
+    def __init__(self,name):
+        self.name = name
+        self.board_shot = self.board_maker()
+        self.board_get = self.board_maker()
+
+    # Inicjacja tablicy
+    def board_maker(self):
+        row_value = []
+        board = {}
+        
+        for i in range(10):
+            board[self.column_key[i]] = ["|0|" * 10]
+            
+        return board
+
+    # Wyświetlanie tablicy
+    def print_board(self,board):
+        # Wyświetlanie zmiennych kolumnowych
+        print("   ",*self.row_key)
+        for i in range(10):
+            print(self.column_key[i],*board[self.column_key[i]])
+        print()
+            
+
+
 class Batleship:
     def __init__(self):
+        self.player1 = Player("Player")
+        self.player2 = Player("AI")
+        self.pre_game()
+        
+    # Instrukcja gry 
+    def pre_game(self):
         os.system("cls")
         print("GRA W STATKI",end='\n\n')
         print("Zasady:")
@@ -10,28 +46,27 @@ class Batleship:
         print("Statki nie mogą się stykać")
         print("Posiadasz dwie plansze:",end='\n\n')
         print("-strzelnicza na której będziesz zaznaczać swoje strzały")
-        board_shot = self.board_maker()
-        print("-celownicza na której będziesz zaznaczać strzały i trafienia AI")
-        board_get = self.board_maker()
+        self.player1.print_board(self.player1.board_shot)
+        print("-celownicza na której będą zaznaczane strzały i trafienia AI")
+        self.player1.print_board(self.player1.board_get)
         accept = input("czy akceptujesz zasady gry ? 1 - TAK; 0 - NIE")
 
+        if accept == "1":
+            accept = 1
+            return accept 
+        else:
+            accept = 0
+            return accept
+
+
+
         
-    def board_maker(self):
-        column_key = [" A "," B "," C "," D "," E " ," F "," G "," H "," I "," J "]
-        row_key = [" 1"," 2"," 3"," 4"," 5"," 6"," 7"," 8"," 9"," 10"]
-        row_value = []
-        board = {}
-        print("   ",*row_key)
-        for i in range(10):
-            board[column_key[i]] = ["|0|" * 10]
-            print(column_key[i],*board[column_key[i]])
-
-        print()
-        return board
+   
+        
             
             
 
-        init_board(column_key)
+        
 
         
   
