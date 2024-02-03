@@ -4,29 +4,103 @@ import os
 class Player:
     column_key = [" A "," B "," C "," D "," E " ," F "," G "," H "," I "," J "]
     row_key = [" 1"," 2"," 3"," 4"," 5"," 6"," 7"," 8"," 9"," 10"]
+    banned_symbols = ["<",".",">","?","/",";",":",'""',"[","{","]","}","\\","+","=","-","_",")","(","*","&","^","%","$","#","@","!","`","~"]
     
-    def __init__(self,name):
+    def __init__(self, name):
         self.name = name
+        self.ships = []
         self.board_shot = self.board_maker()
         self.board_get = self.board_maker()
+        
 
     # Inicjacja tablicy
     def board_maker(self):
         row_value = []
         board = {}
         
-        for i in range(10):
+        # Wypełnianie tablicy
+        for i in range(10): #liczba kolumn i wierszy
             board[self.column_key[i]] = ["|0|" * 10]
             
         return board
 
+    
     # Wyświetlanie tablicy
     def print_board(self,board):
         # Wyświetlanie zmiennych kolumnowych
         print("   ",*self.row_key)
-        for i in range(10):
+        for i in range(10): #liczba kolumn i wierszy
             print(self.column_key[i],*board[self.column_key[i]])
         print()
+    
+    def full_board(self,board_shot,board_get):
+        player = self.name
+        
+        
+
+
+        #funkcja określająca typ statku na podstawie aktualnej długości głównej tablicy statkowej
+        def type_ship(self,length_ship):
+            category = 0
+
+            if length_ship < 4:
+                category = 1
+            elif length_ship < 7:
+                category = 2
+            elif length_ship < 9:
+                category = 3
+            elif length_ship == 9:
+                category = 4
+            
+            return category
+
+        def check_value(self,size,ship):
+            try:
+                
+                if not any(symbol in ship for symbol in self.banned_symbols):
+                    ship = ship.split(",")
+                    
+                else:
+                    raise Exception("W pozycji znajdują się niedozwolone symbole!!")
+
+                if len(ship) != size:
+                    raise Exception("Niepoprawna długość statku!!")
+                
+                for el in ship:
+                    let = el[:1] 
+                    num = el[1:]
+                    print(let,num,el)
+                
+                    
+               
+            
+
+            except Exception as e:
+                print(f"Uwaga! Błąd w deklaracji statku: {e}")
+                return False
+            
+            
+
+        if player == "Player":
+            while len(self.ships) != 10:
+                size = type_ship(self,len(self.ships))
+                ship = input(f"Podaj umiejscowienie statku o długości {size}: ")
+                
+                ship = check_value(self,size,ship)
+
+                
+
+
+        #20 pól w sumie zajętych 4x1, 3x2,2x3,1x4
+        
+        # 1. while az ships != 10 i w zaleznosci od aktualnej długosci pętli taki typ statku rozmieszczamy:
+        #         2. while az ships != aktualny typ statku 
+        #             2.1 Pytamy o umiejscowienie, przypominamy o zasadach - te same wiersze lub kolumny albo nie moga się stykać
+        #             2.2 Wyswietlamy tablice get 
+        #             2.2 sprawdzamy czy okej 
+        #     3. Dodajemy do ships
+        
+
             
 
 
@@ -35,6 +109,8 @@ class Batleship:
         self.player1 = Player("Player")
         self.player2 = Player("AI")
         self.pre_game()
+        self.start_game()
+        
         
     # Instrukcja gry 
     def pre_game(self):
@@ -49,15 +125,18 @@ class Batleship:
         self.player1.print_board(self.player1.board_shot)
         print("-celownicza na której będą zaznaczane strzały i trafienia AI")
         self.player1.print_board(self.player1.board_get)
-        accept = input("czy akceptujesz zasady gry ? 1 - TAK; 0 - NIE")
+        accept = input("czy akceptujesz zasady gry ? 1 - TAK; 0 - NIE: ")
 
         if accept == "1":
             accept = 1
             return accept 
         else:
-            accept = 0
-            return accept
+            return 
 
+    def start_game(self):
+        self.player1.full_board(self.player1.board_shot,self.player1.board_get)
+
+    
 
 
         
