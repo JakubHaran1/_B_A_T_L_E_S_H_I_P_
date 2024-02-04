@@ -1,2 +1,1 @@
- # if len(ship) != size:
-                #     raise Exception("Niepoprawna długość statku!!")
+os.system("cls")

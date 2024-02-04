@@ -57,49 +57,60 @@ class Player:
         def check_value(self,size,ship):
             ship = ship.upper()
             orientation = ""
-            row = ship[0][:1]
-            column = ship[0][1:]
-            orientation_error = "Statek musi znajdywać się w pozycji poziomej lub pionowej (te same kolumny lub wiersze) !!"
+            
+
             try:
                 
+                # Sprawdzannie czy znajdują się niedozwolone symbole
                 if not any(symbol in ship for symbol in self.banned_symbols):
+                    # Dzielenie statku na poszczególne "frakcje"
                     ship = ship.split(",")
                     
                 else:
                     raise Exception("W pozycji znajdują się niedozwolone symbole!!")
 
+                # Sprawdzanie długości statku
                 if len(ship) != size:raise Exception("Niepoprawna długość statku!!")
                 
+
                 if len(ship) > 1:
-                    if ship[0][:1] == row:
+                    # Przypisywanie wiersza do zmiennej pomocniczej - row
+                    row = ship[0][0] # Litera pierwszej części statku 
+
+                    # Przypisywanie kolumny do zmiennej pomocniczej - column
+                    column = ship[0][1] # Cyfra pierwszej części statku
+                    
+                    # Sprawdzanie w jakiej orientacji jest statek - na bazie drugiej części statku
+                    if ship[1][0] == row:
                         orientation = "row"
-                    elif ship[0][1:] == column:
+                    elif ship[1][1] == column:
                         orientation = "column"
                     else:
-                        raise Exception(orientation_error)
+                        raise Exception("Statek musi znajdywać się w pozycji poziomej lub pionowej (te same kolumny lub wiersze) !!")
 
+                    # Sprawdzanie czy pozycja jest utrzymywana
                     if orientation == "row": 
                         for el in ship:
-                            if el[:1] != row: raise Exception(orientation_error)
+                            if el[:1] != row: raise Exception("Statek nie jest umiejscowiony poziomo!!")
                     else:
                         for el in ship:
-                            if el[1:] != column: raise Exception(orientation_error)
-                        
+                            if el[1:] != column: raise Exception("Statek nie jest umiejscowiony pionowo!!")
+                    
+                self.ships.append(ship)
+                
+                
                 
 
-                print()
+                
 
-                # for el in ship:
-                #     let = el[:1] 
-                #     num = el[1:]
-                #     print(let,num,el)
+               
                 
             #co trzeba sprawdzić ?
             # 1. czy dana pozycja nie jest już zajęta - ships arr i czy nie znajduje sie w safety_ area - wartośći obliczane w punkcie 3 
             # 2. Czy został spełniony warunek 1 kolumny i 1 wierszego // to mam
             #       2.1 W pętli sprawdzić czy wszystkie pierwsze wartości są takie same czy drugie // to mam
             #       2.2 Określić kiernek ułożenia statku  // to mam
-            # 3. Sprawdzić czy określone wartości są wolne i dodajemy je do zmiennej safety_area - są tam dodawane 
+            # 3. Obliczamy zabezpieczone wartości dla statku 
                 #  jeśli jest to wartość początkowa statku - wartość z najmniejszą zmienną bazowa to musi być wolna   
           
                     
@@ -113,12 +124,19 @@ class Player:
             
 
         if player == "Player":
+            os.system("cls")#nie rozumiem czemu musze jeszcze czyścić tu skoro daje to tu -> odnośnik do [2]
             while len(self.ships) != 10:
-                size = type_ship(self,len(self.ships))
-                ship = input(f"Podaj umiejscowienie statku o długości {size}: ")
                 
-                ship = check_value(self,size,ship)
+                size = type_ship(self,len(self.ships))
+                
+                print("To jest twoja tablica ze statkami:")
+                self.print_board(self.board_get)
+                ship = input(f"Podaj umiejscowienie statku o długości {size}: ")
+                os.system('cls')
+                if ship: ship = check_value(self,size,ship)
+                else: print("Uwaga! Nie podano pozycji statku!")
 
+                
                 
 
 
@@ -145,7 +163,7 @@ class Batleship:
         
     # Instrukcja gry 
     def pre_game(self):
-        os.system("cls")
+        os.system('cls')
         print("GRA W STATKI",end='\n\n')
         print("Zasady:")
         print("Masz do wyboru: cztery jednomasztowce, trzy dwumasztowce, dwa trzymasztowce i jeden czteromasztowiec")
@@ -157,8 +175,9 @@ class Batleship:
         print("-celownicza na której będą zaznaczane strzały i trafienia AI")
         self.player1.print_board(self.player1.board_get)
         accept = input("czy akceptujesz zasady gry ? 1 - TAK; 0 - NIE: ")
-
+        os.system("cls") # -> [2] gdy daje tylko tu to czasem pokazuje się print ,,Musisz rozmieszczać pojedyncze..." więc bez sensu bo nawet nie jest to ostatni print tylko w środku
         if accept == "1":
+            
             accept = 1
             return accept 
         else:
@@ -168,18 +187,4 @@ class Batleship:
         self.player1.full_board(self.player1.board_shot,self.player1.board_get)
 
     
-
-
-        
-   
-        
-            
-            
-
-        
-
-        
-  
-
-
 batleship = Batleship()
