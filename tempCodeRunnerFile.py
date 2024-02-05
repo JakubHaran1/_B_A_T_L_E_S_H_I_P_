@@ -1,1 +1,1 @@
-os.system("cls")
+el[0]

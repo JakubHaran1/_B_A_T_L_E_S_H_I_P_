@@ -11,7 +11,7 @@ class Player:
         self.ships = []
         self.board_shot = self.board_maker()
         self.board_get = self.board_maker()
-        
+        self.safe_zone = []
 
     # Inicjacja tablicy
     def board_maker(self):
@@ -56,35 +56,40 @@ class Player:
 
         def check_value(self,size,ship):
             ship = ship.upper()
-            orientation = ""
+            orientation = "row"
             
 
             try:
                 
                 # Sprawdzannie czy znajdują się niedozwolone symbole
-                if not any(symbol in ship for symbol in self.banned_symbols):
+                if not any(symbol.strip() in ship for symbol in self.banned_symbols):
                     # Dzielenie statku na poszczególne "frakcje"
                     ship = ship.split(",")
                     
                 else:
                     raise Exception("W pozycji znajdują się niedozwolone symbole!!")
 
+                # Sprawdzanie czy wszystkie klucze są unikalne i nie znajduja się w safety_zone ani ships
+
+
                 # Sprawdzanie długości statku
                 if len(ship) != size:raise Exception("Niepoprawna długość statku!!")
                 
-
+                
                 if len(ship) > 1:
                     # Przypisywanie wiersza do zmiennej pomocniczej - row
-                    row = ship[0][0] # Litera pierwszej części statku 
-
+                    row = ship[0][:1] # Litera pierwszej części statku 
+                    
                     # Przypisywanie kolumny do zmiennej pomocniczej - column
                     column = ship[0][1] # Cyfra pierwszej części statku
                     
                     # Sprawdzanie w jakiej orientacji jest statek - na bazie drugiej części statku
-                    if ship[1][0] == row:
+                    if ship[1][:1] == row:
                         orientation = "row"
-                    elif ship[1][1] == column:
+                        
+                    elif ship[1][1:] == column:
                         orientation = "column"
+                        
                     else:
                         raise Exception("Statek musi znajdywać się w pozycji poziomej lub pionowej (te same kolumny lub wiersze) !!")
 
@@ -95,10 +100,14 @@ class Player:
                     else:
                         for el in ship:
                             if el[1:] != column: raise Exception("Statek nie jest umiejscowiony pionowo!!")
+                
+               
+
                     
                 self.ships.append(ship)
                 
                 
+            
                 
 
                 
@@ -121,6 +130,65 @@ class Player:
                 print(f"Uwaga! Błąd w deklaracji statku: {e}")
                 return False
             
+            
+
+            # Wyliczanie zabezpieczonych pól:
+            
+            if orientation == "row":
+                min_value = ship[0]
+                max_value = ship[0]
+                index_el = ""
+
+                def add_safe_field(zone,arr,el):
+                    
+                    zone = arr.strip() + el
+                    self.safe_zone.append(zone)
+                
+                # Ustalanie wartości
+                for el in ship:
+                    first_zone = ""
+                    second_zone = ""
+                    
+                    #Znalezienie najmniejszej i największej wartości (w zależności od orientacji) 
+                    if int(min_value[1:]) > int(el[1:]): min_value = el
+                    else: max_value = el
+                
+                    # Zmienna pomocnicza do wyliczenia górnego i dolnego bezpiecznego pola 
+                    index_el = self.column_key.index(f" {el[0]} ")
+                    
+                    
+                    # Wyliczanie górnego pola
+                    if index_el != 0:
+                        add_safe_field(first_zone, self.column_key[index_el - 1 ], el[1])
+                        
+                    # Wyliczanie dolnego pola
+                    if index_el != len(self.column_key) - 1:
+                        add_safe_field(second_zone, self.column_key[index_el + 1 ], el[1])
+                        
+                        
+                # Wyliczanie "dodatkowych" bocznych pól
+                # Pole lewe skrajne
+                index_el = self.row_key.index(f" {min_value[1]}")
+                if index_el != 0:
+                    add_safe_field(min_value, min_value[0], self.row_key[index_el - 1].strip())
+                    
+                
+                # Pole prawe skrajne
+                index_el = self.row_key.index(f" {max_value[1]}")
+                if index_el != len(self.column_key) - 1:
+                    add_safe_field(max_value, max_value[0], self.row_key[index_el + 1].strip())
+                   
+                print(self.safe_zone)
+
+                
+                
+
+
+
+                
+                
+                    
+                
             
 
         if player == "Player":
