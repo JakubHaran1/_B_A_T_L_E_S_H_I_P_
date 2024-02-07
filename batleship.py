@@ -2,8 +2,8 @@ import os
 
 
 class Player:
-    column_key = [" A "," B "," C "," D "," E " ," F "," G "," H "," I "," J "]
-    row_key = [" 1"," 2"," 3"," 4"," 5"," 6"," 7"," 8"," 9"," 10"]
+    row_key = [" A "," B "," C "," D "," E " ," F "," G "," H "," I "," J "]
+    column_key = [" 1"," 2"," 3"," 4"," 5"," 6"," 7"," 8"," 9"," 10"]
     banned_symbols = ["<",".",">","?","/",";",":",'""',"[","{","]","}","\\","+","=","-","_",")","(","*","&","^","%","$","#","@","!","`","~","''"]
     
     def __init__(self, name):
@@ -20,16 +20,16 @@ class Player:
         
         # Wypełnianie tablicy
         for i in range(10): #liczba kolumn i wierszy
-            board[self.column_key[i]] = ["|0|" * 10]
+            board[self.row_key[i]] = ["|0|" * 10]
             
         return board
 
     # Wyświetlanie tablicy
     def print_board(self,board):
         # Wyświetlanie zmiennych kolumnowych
-        print("   ",*self.row_key)
+        print("   ",*self.column_key)
         for i in range(10): #liczba kolumn i wierszy
-            print(self.column_key[i],*board[self.column_key[i]])
+            print(self.row_key[i],*board[self.row_key[i]])
         print()
     
     #funkcja określająca typ statku na podstawie aktualnej długości głównej tablicy statkowej
@@ -69,30 +69,31 @@ class Player:
                 else: max_value = el
             
                 # Zmienna pomocnicza do wyliczenia górnego i dolnego bezpiecznego pola 
-                index_el = self.column_key.index(f" {el[:1]} ")
+                index_el = self.row_key.index(f" {el[:1]} ")
                 
                 
                 # Wyliczanie górnego pola
                 if index_el != 0:
-                    self.add_protect_field(first_zone, self.column_key[index_el - 1 ], el[1:])
+                    self.add_protect_field(first_zone, self.row_key[index_el - 1 ], el[1:])
                     
                 # Wyliczanie dolnego pola
-                if index_el != len(self.column_key) - 1:
-                    self.add_protect_field(second_zone, self.column_key[index_el + 1 ], el[1:])
+                if index_el != len(self.row_key) - 1:
+                    self.add_protect_field(second_zone, self.row_key[index_el + 1 ], el[1:])
                     
                     
             # Wyliczanie "dodatkowych" bocznych pól
             # Pole lewe skrajne
-            index_el = self.row_key.index(f" {min_value[1:]}")
+            index_el = self.column_key.index(f" {min_value[1:]}")
             if index_el != 0:
-                self.add_protect_field(min_value, min_value[:1], self.row_key[index_el - 1].strip())
+                self.add_protect_field(min_value, min_value[:1], self.column_key[index_el - 1].strip())
                 
             
             # Pole prawe skrajne
-            index_el = self.row_key.index(f" {max_value[1:]}")
-            if index_el != len(self.column_key) - 1:
-                self.add_protect_field(max_value, max_value[:1], self.row_key[index_el + 1].strip())
-                
+            index_el = self.column_key.index(f" {max_value[1:]}")
+            if index_el != len(self.row_key) - 1:
+                self.add_protect_field(max_value, max_value[:1], self.column_key[index_el + 1].strip())
+        else:  
+            pass
             
 
     
@@ -153,22 +154,21 @@ class Batleship:
                 if len(ship) != size: raise Exception("Niepoprawna długość statku!!")
 
                 # Sprawdzanie czy wszystkie klucze są unikalne i nie znajduja się w safety_zone ani ships
-                
                 for el in ship:
                     if self.player1.ships.count(el) > 1: raise Exception(f"Wartość {el} występuje w deklaracji statku więcej niż jeden raz")
 
                     el = el.replace(" ","")
-                    if f" {el[:1]} " not in self.player1.column_key:
-                        raise Exception(f"Niepoprawna wartość na pozycji wierszowej - {el}! Mają to być litery od A-J")
+                    if f" {el[:1]} " not in self.player1.row_key:
+                        raise Exception(f"Niepoprawna wartość na pozycji wierszowej - {el[:1]} w {el}! Mają to być litery od A-J")
                     
-                    if f" {el[1:]}" not in self.player1.row_key:
-                        raise Exception(f"Niepoprawna wartość na pozycji kolumnowej - {el}! Mają to być cyfry od 1-10")
+                    if f" {el[1:]}" not in self.player1.column_key:
+                        raise Exception(f"Niepoprawna wartość na pozycji kolumnowej - {el[1:]} w {el}! Mają to być cyfry od 1-10")
 
                     if el in self.player1.protect_zone:
                         raise Exception(f"Pozycja {el} jest pozycją chronioną innego statku!")
                     
-                    for ship in self.player1.ships: 
-                        if el in ship:
+                    for boat in self.player1.ships: 
+                        if el in boat:
                             raise Exception(f"Na pozycji {el} jest już umiejscowiony statek!")
 
 
@@ -196,6 +196,7 @@ class Batleship:
                             if el[1:] != column: raise Exception("Statek nie jest umiejscowiony pionowo!!")
                 
                 self.player1.ships.append(ship)
+                
             except Exception as e:
                 print(f"Uwaga! Błąd w deklaracji statku: {e}")
                 continue
