@@ -155,21 +155,21 @@ class Batleship:
                 # Sprawdzanie czy wszystkie klucze są unikalne i nie znajduja się w safety_zone ani ships
                 
                 for el in ship:
+                    if self.player1.ships.count(el) > 1: raise Exception(f"Wartość {el} występuje w deklaracji statku więcej niż jeden raz")
+
                     el = el.replace(" ","")
                     if f" {el[:1]} " not in self.player1.column_key:
-                        raise Exception(f"Niepoprawna wartość na pozycji wierszowej - {el[:1]}! Mają to być litery od A-J")
+                        raise Exception(f"Niepoprawna wartość na pozycji wierszowej - {el}! Mają to być litery od A-J")
                     
                     if f" {el[1:]}" not in self.player1.row_key:
-                        raise Exception(f"Niepoprawna wartość na pozycji kolumnowej - {el[1:]}! Mają to być cyfry od 1-10")
+                        raise Exception(f"Niepoprawna wartość na pozycji kolumnowej - {el}! Mają to być cyfry od 1-10")
 
                     if el in self.player1.protect_zone:
                         raise Exception(f"Pozycja {el} jest pozycją chronioną innego statku!")
                     
-                    
-                if  any(el in ship for arr in self.player1.ships):
-                    raise Exception(f"Na pozycji {el} jest już umiejscowiony statek!")
-
-               
+                    for ship in self.player1.ships: 
+                        if el in ship:
+                            raise Exception(f"Na pozycji {el} jest już umiejscowiony statek!")
 
 
                 # Ustalenie pozycji statku
@@ -185,8 +185,7 @@ class Batleship:
                         orientation = "row"
                     elif ship[1][1:] == column:
                         orientation = "column"
-                    else:
-                        raise Exception("Statek musi znajdywać się w pozycji poziomej lub pionowej (te same kolumny lub wiersze) !!")
+                    else: raise Exception("Statek musi znajdywać się w pozycji poziomej lub pionowej (te same kolumny lub wiersze) !!")
 
                     # Sprawdzanie czy pozycja jest utrzymywana
                     if orientation == "row": 
@@ -197,8 +196,6 @@ class Batleship:
                             if el[1:] != column: raise Exception("Statek nie jest umiejscowiony pionowo!!")
                 
                 self.player1.ships.append(ship)
-                
-
             except Exception as e:
                 print(f"Uwaga! Błąd w deklaracji statku: {e}")
                 continue
