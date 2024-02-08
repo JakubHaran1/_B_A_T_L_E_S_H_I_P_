@@ -48,29 +48,28 @@ class Player:
         return category
 
     def add_protect_field(self,zone,arr,el):
-        zone = arr.strip() + el
+        zone = arr.strip() + el.strip()
         self.protect_zone.append(zone)
 
     def field_protector(self,orientation,ship):
+        min_value = ship[0]
+        max_value = ship[0]
+        index_el = ""
+        first_zone = ""
+        second_zone = ""
+        orientation = "column" #do wywalenia, zrobione do szybszego sprawdzania self_protector dla kolumn
 
         # Wyliczanie zabezpieczonych pól:
         if orientation == "row":
-            min_value = ship[0]
-            max_value = ship[0]
-            index_el = ""
 
             # Ustalanie wartości
             for el in ship:
-                first_zone = ""
-                second_zone = ""
-                
                 #Znalezienie najmniejszej i największej wartości (w zależności od orientacji) 
                 if int(min_value[1:]) > int(el[1:]): min_value = el
                 else: max_value = el
             
                 # Zmienna pomocnicza do wyliczenia górnego i dolnego bezpiecznego pola 
                 index_el = self.row_key.index(f" {el[:1]} ")
-                
                 
                 # Wyliczanie górnego pola
                 if index_el != 0:
@@ -90,10 +89,41 @@ class Player:
             
             # Pole prawe skrajne
             index_el = self.column_key.index(f" {max_value[1:]}")
-            if index_el != len(self.row_key) - 1:
+            if index_el != len(self.column_key) - 1:
                 self.add_protect_field(max_value, max_value[:1], self.column_key[index_el + 1].strip())
         else:  
-            pass
+            for el in ship:
+                
+                #Znalezienie najmniejszej i największej wartości (w zależności od orientacji)
+                if min_value[:1] > el[:1]: min_value = el
+                else: max_value = el
+
+                # Zmienna pomocnicza do wyliczenia lewego i prawego bezpiecznego pola 
+                index_el = self.column_key.index(f" {el[1:]}")
+                
+                # wyliczenie lewego zabezpieczonego pola
+                if index_el != 0:
+                    self.add_protect_field(first_zone ,el[:1], self.column_key[index_el - 1 ] )
+                
+                # Wyliczanie prawego zabezpieczonego pola
+                if index_el != len(self.column_key) - 1:
+                    self.add_protect_field(second_zone, el[:1], self.column_key[index_el + 1 ])
+
+            # Wyliczanie "dodatkowego" górnego i dolnego pola
+            # Pole górne
+            index_el = self.row_key.index(f" {min_value[:1]} ")
+            if index_el != 0:
+                self.add_protect_field(min_value, self.row_key[index_el - 1].strip(), min_value[1:])
+
+            # Pole dolne 
+            index_el = self.row_key.index(f" {max_value[:1]} ")
+            if index_el != len(self.row_key) - 1:
+                self.add_protect_field(max_value, self.row_key[index_el + 1].strip(), max_value[1:])
+            
+            
+
+class Ai(Player):
+    pass            
             
 
     
@@ -204,8 +234,7 @@ class Batleship:
             
 
             self.player1.field_protector(orientation,ship)
-            print(self.player1.protect_zone)
-            print(self.player1.ships)
+            
             
             
 
