@@ -247,14 +247,29 @@ class Batleship:
                             elif ship[1][1:] == column:
                                 orientation = "column"
                             else: raise Exception("Statek musi znajdywać się w pozycji poziomej lub pionowej (te same kolumny lub wiersze) !!")
-
-                            # Sprawdzanie czy pozycja jest utrzymywana
+                            previous_el = ""
+                            # Sprawdzanie czy pozycja jest utrzymywana i czy elementy składowe statku znajdują się koło siebie
                             if orientation == "row": 
                                 for el in ship:
                                     if el[:1] != row: raise Exception("Statek nie jest umiejscowiony poziomo!!")
+                                    if previous_el == "":
+                                        previous_el = ship[0][1:]
+                                    elif int(el[1:]) == int(previous_el) + 1:
+                                        previous_el = el[1:]
+                                    else:
+                                        raise Exception("Elementy składowe statku nie są koło siebie!")
+                                    
+                                    
                             else:
                                 for el in ship:
                                     if el[1:] != column: raise Exception("Statek nie jest umiejscowiony pionowo!!")
+                                    
+                                    if previous_el == "":
+                                        previous_el = player.row_key.index(f" {ship[0][:1]} ")
+                                    elif el[:1] == player.row_key[previous_el + 1].strip():
+                                        previous_el = player.row_key.index(f" {el[:1]} ")
+                                    else:
+                                        raise Exception("Elementy składowe statku nie są koło siebie!")
                         
                         player.ships.append(ship)
                         
