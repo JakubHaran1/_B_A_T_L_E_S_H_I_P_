@@ -142,17 +142,40 @@ class Ai(Player):
     def __init__(self,name):
         super().__init__(name)
     
-    def create_ship(self):
-        orientations = ["row","column"]
-        orientation = random.choice(orientations)
+    def create_ship(self, orientation):
+
+        # Dodać sprawdzanie czy nie jest już zajęte pole i czy nie znajduje się w safety field!
+        
         size = self.type_ship(len(self.ships))
         ship = []
+        first_el = ""
         if orientation == "row":
-            while len(ship) != size:
-                c = True
-                while c == True:
-                    row = random.choice(self.row_key)
-                    self.ships.append(row)
+            c = True
+            while c == True:
+                # Inicjacja pierwszego elementu statku:
+                row = random.choice(self.row_key).strip()
+                column = random.choice(self.column_key).strip()
+                if int(column) + size <= len(self.column_key):
+                    first_el = row + column
+                    c = False
+                    ship.append(first_el)
+            
+            if size > 1:
+                #Dołączanie kolejnych elementów składowych statku:
+                i = 0
+                while len(ship) != size:
+                    i+=1
+                    el = row + str(int(column) + i)
+                    ship.append(el)
+        else:
+            pass
+
+        
+        
+        return ship
+
+
+            
                 
 
 
@@ -297,11 +320,34 @@ class Batleship:
                         print(f"Uwaga! Błąd w deklaracji statku: {e}")
                         continue
 
-                    
-
                     player.field_protector(orientation,ship)
                     player.draw_ship(ship,player.board_get)
-            
+            else:
+                while len(player.ships) != 10:
+                    try:
+                        orientations = ["row","column"]
+                        # orientation = random.choice(orientations) # zamieć z tym niżej
+                        orientation = "row"
+                        ship = player.create_ship(orientation)
+                        # Tutaj to sprawdzanie
+                        for el in ship:
+                            if el in player.protect_zone:
+                                raise Exception
+                            
+                            for boat in player.ships: 
+                                if el in boat:
+                                    raise Exception
+
+                        player.ships.append(ship)
+                        player.field_protector(orientation, ship)
+                        
+                    except Exception:
+                        continue
+
+                print(f" player ships {player.ships}")
+                print(f' protect_ship {player.protect_zone}')
+                
+
                     
             
             
