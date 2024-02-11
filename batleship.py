@@ -149,29 +149,35 @@ class Ai(Player):
         size = self.type_ship(len(self.ships))
         ship = []
         first_el = ""
-        if orientation == "row":
-            c = True
-            while c == True:
-                # Inicjacja pierwszego elementu statku:
-                row = random.choice(self.row_key).strip()
-                column = random.choice(self.column_key).strip()
-                if int(column) + size <= len(self.column_key):
-                    first_el = row + column
-                    c = False
-                    ship.append(first_el)
-            
-            if size > 1:
-                #Dołączanie kolejnych elementów składowych statku:
-                i = 0
-                while len(ship) != size:
-                    i+=1
-                    el = row + str(int(column) + i)
-                    ship.append(el)
-        else:
-            pass
+        c = True
+        while c == True:
+            # Inicjacja pierwszego elementu statku:
+            row = random.choice(self.row_key).strip()
+            column = random.choice(self.column_key).strip()
+            if int(column) + size <= len(self.column_key):
+                first_el = row + column
+                c = False
+                ship.append(first_el)
 
-        
-        
+        if orientation == "row" and size > 1:
+            #Dołączanie kolejnych elementów składowych statku:
+            i = 0
+            while len(ship) != size:
+                i+=1
+                el = row + str(int(column) + i)
+                ship.append(el)
+
+        elif orientation == "column" and size > 1:
+            i = 0
+            index_el = self.row_key.index(f" {row} ")
+
+            while len(ship) != size:
+                i += 1
+                el = self.row_key[index_el + 1].strip() + column
+                ship.append(el)
+
+
+
         return ship
 
 
@@ -212,7 +218,9 @@ class Batleship:
         
         return(players)
 
-
+    # Zmiana graczy
+    def switch_player():
+        pass
     
     # Instrukcja gry 
     def pre_game(self):
@@ -326,8 +334,7 @@ class Batleship:
                 while len(player.ships) != 10:
                     try:
                         orientations = ["row","column"]
-                        # orientation = random.choice(orientations) # zamieć z tym niżej
-                        orientation = "row"
+                        orientation = random.choice(orientations)
                         ship = player.create_ship(orientation)
                         # Tutaj to sprawdzanie
                         for el in ship:
