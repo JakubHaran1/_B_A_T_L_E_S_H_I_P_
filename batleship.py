@@ -1,4 +1,5 @@
 import os
+import random
 
 
 class Player:
@@ -130,13 +131,31 @@ class Player:
             value = int(el[1:])
             arr = board_get[f" {key} "]
             arr[value-1] = "🚢 "
+    
+
+
 
                     
             
 
 class Ai(Player):
     def __init__(self,name):
-        self.name = name           
+        super().__init__(name)
+    
+    def create_ship(self):
+        orientations = ["row","column"]
+        orientation = random.choice(orientations)
+        size = self.type_ship(len(self.ships))
+        ship = []
+        if orientation == "row":
+            while len(ship) != size:
+                c = True
+                while c == True:
+                    row = random.choice(self.row_key)
+                    self.ships.append(row)
+                
+
+
             
 
     
@@ -164,8 +183,9 @@ class Batleship:
         else:
             players = []
             name = input(f"Podaj imię gracza nr. 1: ")
+            players.append(Ai("Ai")) #zamienić kolejnościa z player
             players.append(Player(name))
-            players.append(Ai("Ai")) 
+            
         
         return(players)
 
@@ -281,8 +301,8 @@ class Batleship:
 
                     player.field_protector(orientation,ship)
                     player.draw_ship(ship,player.board_get)
-            else:
-                print(player.name)
+            
+                    
             
             
 
