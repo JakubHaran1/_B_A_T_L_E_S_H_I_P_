@@ -125,13 +125,15 @@ class Player:
             if index_el != len(self.row_key) - 1:
                 self.add_protect_field(max_value, self.row_key[index_el + 1].strip(), max_value[1:])
 
-    def draw_ship(self,ship,board_get):
+    def draw_ship(self,ship,board,shot,miss):
         arr =""
         for el in ship:
             key = el[:1]
             value = int(el[1:])
-            arr = board_get[f" {key} "]
-            arr[value-1] = "🚢 "
+            arr = board[f" {key} "]
+            if shot == 0: arr[value-1] = "🚢 "
+            elif shot ==1 and miss == 0: arr[value-1] = "🔥 "
+            elif shot == 1 and miss == 1: arr[value-1] = "🚩 "
     
     def check_shot(self,shot):
         for ship in self.ships:
@@ -207,8 +209,8 @@ class Ai(Player):
 class Batleship:
     def __init__(self):
         self.players = self.create_player()
-        # self.pre_game()
-        # self.start_game() odkomentować 
+        self.pre_game()
+        self.start_game() 
         self.play_game()
         
     # Tworzenie graczy
@@ -233,9 +235,13 @@ class Batleship:
     # Zmiana graczy 
     def switch_player(self, current):
         if current == self.players[0]:
-            return self.players[1]
+            active = self.players[1]
+            no_active = self.players[0]
+            return [active,no_active]
         else:
-            return self.players[0]
+            active = self.players[0]
+            no_active = self.players[1]
+            return [active, no_active]
         
     
     # Instrukcja gry 
@@ -247,9 +253,9 @@ class Batleship:
         print("Musisz rozmieszczać pojedyncze statki w obrębie jednego wiersza lub kolumny tzn. nie wolno ci postawić np.dwumasztowca na [A1,B2]")
         print("Statki nie mogą się stykać")
         print("Posiadasz dwie plansze:",end='\n\n')
-        print("-strzelnicza na której będziesz zaznaczać swoje strzały")
+        print("-strzelnicza na której będziesz zaznaczać swoje strzały") #board_shot
         self.players[0].print_board(self.players[0].board_shot)
-        print("-celownicza na której będą zaznaczane twoje statki oraz strzały i trafienia drugiego gracza/Ai")
+        print("-celownicza na której będą zaznaczane twoje statki oraz strzały i trafienia drugiego gracza/Ai") #board_get
         self.players[0].print_board(self.players[0].board_get)
         accept = input("czy akceptujesz zasady gry ? 1 - TAK; 0 - NIE: ")
         os.system("cls") 
@@ -346,7 +352,7 @@ class Batleship:
                         continue
 
                     player.field_protector(orientation,ship)
-                    player.draw_ship(ship,player.board_get)
+                    player.draw_ship(ship,player.board_get,0,0)
             
                     
             else:
@@ -383,13 +389,15 @@ class Batleship:
             
             if active_player.name != "Ai":
                 print(f"Strzały oddaje {active_player.name}")
-                shot = input("Podaj koordynaty statku przeciwnika: ").upper()
-                [get, ship_remove]  = active_player.check_shot(shot)
-                
+                shot = [input("Podaj koordynaty statku przeciwnika: ").upper()]
+                [get, ship_remove]  = active_player.check_shot(shot[0])
+                os.system("cls")
                             
                 if get != "":
-                    ship_remove.remove(shot)
+                    ship_remove.remove(shot[0])
                     print(f"Gratulację! Gracz {active_player.name} trafił!")
+                    active_player.draw_ship(shot,active_player.board_shot,1,0)
+                    active_player.print_board(active_player.board_shot)
                     print("Przysługuje mu kolejny strzał!")
                     
                     if len(ship_remove) == 0:
@@ -397,8 +405,11 @@ class Batleship:
                         print("UWAGA STATEK ZATONĄŁ!")
                 
                 else:
-                    print("Pudło!! Następuje zmiana gracza...")
-                    active_player = self.switch_player(active_player)
+                    print("Pudło!!")
+                    active_player.draw_ship(shot,active_player.board_get, 1, 1)
+                    active_player.print_board(active_player.board_get)
+                    print("Następuje zmiana gracza...")
+                    [active_player, no_active] = self.switch_player(active_player)
                     
 
                 print(shot)

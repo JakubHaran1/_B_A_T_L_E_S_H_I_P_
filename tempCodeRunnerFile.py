@@ -1,1 +1,1 @@
-self.pre_game()
+input("Podaj koordynaty statku przeciwnika: ").upper()
