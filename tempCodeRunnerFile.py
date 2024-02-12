@@ -1,2 +1,1 @@
-
-            #     c = True
+self.pre_game()
