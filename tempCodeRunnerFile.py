@@ -1,1 +1,1 @@
-input("Podaj koordynaty statku przeciwnika: ").upper()
+print("Rozpoczynamy grę! Podawaj koordynaty gdzie twoja załoga ma strzelać (np. A1)",end='\n')

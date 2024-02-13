@@ -128,6 +128,7 @@ class Player:
     def draw_ship(self,ship,board,shot,miss):
         arr =""
         for el in ship:
+            # dodać try aby nie wywalało errora jak w złej kolejności
             key = el[:1]
             value = int(el[1:])
             arr = board[f" {key} "]
@@ -142,10 +143,10 @@ class Player:
                     get = shot
                     ship_remove = ship
                     return [get,ship_remove]
-                else:
-                    get = ""
-                    ship_remove = "False"
-                    return [get, ship_remove ]
+               
+        get = ""
+        ship_remove = "False"
+        return [get, ship_remove ]
 
 
 
@@ -191,9 +192,17 @@ class Ai(Player):
 
 
         return ship
+    
 
-
-            
+    #strzelanie 
+    #losowanie czy column czy row
+    # potem losowanie columny lub row 
+    # gdy traf 
+        # (zapamiętaj traf) 
+        #  spróbuj w lewo/prawo/góra dół / gdy traf idziesz w dół...
+        # gdy nie traf zacznij od prawo/góra - to co ostatnio nie było traf 
+    
+    
                 
 
 
@@ -389,7 +398,9 @@ class Batleship:
             
             if active_player.name != "Ai":
                 print(f"Strzały oddaje {active_player.name}")
+                active_player.print_board(active_player.board_shot)
                 shot = [input("Podaj koordynaty statku przeciwnika: ").upper()]
+                
                 [get, ship_remove]  = active_player.check_shot(shot[0])
                 os.system("cls")
                             
@@ -397,23 +408,22 @@ class Batleship:
                     ship_remove.remove(shot[0])
                     print(f"Gratulację! Gracz {active_player.name} trafił!")
                     active_player.draw_ship(shot,active_player.board_shot,1,0)
-                    active_player.print_board(active_player.board_shot)
-                    print("Przysługuje mu kolejny strzał!")
-                    
+                
                     if len(ship_remove) == 0:
                         active_player.ships.remove([])
                         print("UWAGA STATEK ZATONĄŁ!")
-                
+                        
+                    print("Przysługuje mu kolejny strzał!")
+
                 else:
-                    print("Pudło!!")
+                    print("Pudło!!",end='\n')
                     active_player.draw_ship(shot,active_player.board_get, 1, 1)
                     active_player.print_board(active_player.board_get)
                     print("Następuje zmiana gracza...")
                     [active_player, no_active] = self.switch_player(active_player)
                     
 
-                print(shot)
-                print(active_player.ships)
+                
             
             else:
                 print("AI")
@@ -422,14 +432,4 @@ class Batleship:
 
 
                 
-                    
-                    
-
-
-        
-                    
-            
-            
-
-    
 batleship = Batleship()
