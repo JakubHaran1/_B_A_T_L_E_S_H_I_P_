@@ -10,7 +10,7 @@ class Player:
     
     def __init__(self, name):
         self.name = name
-        self.ships = [] #wyczyścić 
+        self.ships = [['D5'], ['E8'], ['I2'], ['E3'], ['A4', 'A5'], ['C2', 'D2'], ['I7', 'I8'], ['C6', 'C7', 'C8'], ['F4', 'G4', 'H4'], ['E1', 'F1', 'G1', 'H1']] #wyczyścić 
         self.board_shot = self.board_maker()
         self.board_get = self.board_maker()
         self.protect_zone = []
@@ -227,8 +227,9 @@ class Batleship:
         print("---GRA W STATKI---")
         players = []
         name = input(f"Podaj imię gracza nr. 1: ")
-        players.append(Ai("Ai")) #zamienić kolejnościa z player
         players.append(Player(name))
+        players.append(Ai("Ai")) #Player pierwsze
+        
         
 
         return(players)
@@ -387,46 +388,46 @@ class Batleship:
         active_player = self.players[0]
         no_active = self.players[1]
         while self.players[0].ships != [] or self.players[1].ships != []:
-            
-            if active_player.name != "Ai":
-                print(f"Strzały oddaje {active_player.name}")
-                active_player.print_board(active_player.board_shot)
-                shot = [input("Podaj koordynaty statku przeciwnika: ").upper()]
-                get = ""
-                for ship in no_active.ships:
-                    for el in ship:
-                        if shot[0] == el:
-                            ship.remove(el)
-                            get = shot
-                            ship_remove = ship
-                
-                os.system("cls")
-                            
-                if get != "":
-                    print(no_active.ships)
-                    print(f"Gratulację! Gracz {active_player.name} trafił!")
-                    active_player.draw_ship(shot,active_player.board_shot,1,0)
-                
-                    if len(ship_remove) == 0:
-                        no_active.ships.remove([])
-                        print("UWAGA STATEK ZATONĄŁ!")
-                        
-                    print("Przysługuje mu kolejny strzał!")
+            print(f"Strzały oddaje {active_player.name}")
+            active_player.print_board(active_player.board_shot)
+            get = ""
 
-                else:
-                    print("Pudło!!",end='\n')
-                    active_player.draw_ship(shot,active_player.board_get, 1, 1)
-                    active_player.print_board(active_player.board_get)
-                    print("Następuje zmiana gracza...")
-                    [active_player, no_active] = self.switch_player(active_player)
+            if active_player.name != "Ai":
+                shot = [input("Podaj koordynaty statku przeciwnika: ").upper()]
+                
+            else:
+                print("AI")
+
+            for ship in no_active.ships:
+                for el in ship:
+                    if shot[0] == el:
+                        ship.remove(el)
+                        get = shot
+                        ship_remove = ship
+                
+            os.system("cls")
+                        
+            if get != "":
+                print(f"Gratulację! Gracz {active_player.name} trafił!")
+                active_player.draw_ship(shot,active_player.board_shot,1,0)
+            
+                if len(ship_remove) == 0:
+                    no_active.ships.remove([])
+                    print("UWAGA STATEK ZATONĄŁ!")
+                    
+                print("Przysługuje mu kolejny strzał!")
+
+            else:
+                print("Pudło!!",end='\n')
+                active_player.draw_ship(shot,active_player.board_get, 1, 1)
+                active_player.print_board(active_player.board_get)
+                print("Następuje zmiana gracza...")
+                [active_player, no_active] = self.switch_player(active_player)
                     
 
                 
             
-            else:
-                print("AI")
-                row = random.choice(active_player.row_key).strip()
-                break
+           
             
         os.system("cls")
         print(123)
