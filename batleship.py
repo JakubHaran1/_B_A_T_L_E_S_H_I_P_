@@ -156,6 +156,7 @@ class Player:
 class Ai(Player):
     def __init__(self,name):
         super().__init__(name)
+        self.stategy = False
     
     def create_ship(self, orientation):
         # Dodać sprawdzanie czy nie jest już zajęte pole i czy nie znajduje się w safety field!
@@ -193,6 +194,13 @@ class Ai(Player):
 
         return ship
     
+    def shooting_ai(self):
+        #strzelanie losowe
+        if self.stategy == False:
+            shot = random.choice(self.row_key).strip()
+            shot = shot + random.choice(self.column_key).strip()
+        
+        return [shot]
 
     #strzelanie 
     #losowanie czy column czy row
@@ -397,6 +405,10 @@ class Batleship:
                 
             else:
                 print("AI")
+                # TWORZENIE STRZAŁÓW W ZALEŻNOŚCI OD ZMIENNYCH
+                shot = active_player.shooting_ai()
+                print(shot)
+                
 
             for ship in no_active.ships:
                 for el in ship:
@@ -417,15 +429,22 @@ class Batleship:
                     
                 print("Przysługuje mu kolejny strzał!")
 
+                # Zmiana zmiennych w zależności czy traf czy nie
+                # Dla losowych strzałów:
+                if active_player.stategy == False:
+                    active_player.stategy == "I" #przechodzenie do sprawdzania kierunku
             else:
                 print("Pudło!!",end='\n')
                 active_player.draw_ship(shot,active_player.board_get, 1, 1)
                 active_player.print_board(active_player.board_get)
                 print("Następuje zmiana gracza...")
+                # Zmiana zmiennych w zależności czy traf czy nie
+                # Dla losowych strzałów: brak 
+
                 [active_player, no_active] = self.switch_player(active_player)
                     
 
-                
+         
             
            
             
