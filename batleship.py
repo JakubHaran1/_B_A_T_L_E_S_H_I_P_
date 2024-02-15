@@ -10,7 +10,7 @@ class Player:
     
     def __init__(self, name):
         self.name = name
-        self.ships = [['G8'], ['A4'], ['C9'], ['F9'], ['A8', 'B8'], ['B2', 'B3'], ['C1', 'D1'], ['I7', 'J7', 'J7'], ['I4', 'J4', 'J4'], ['D4', 'D5', 'D6', 'D7']] #wyczyścić 
+        self.ships = [] #wyczyścić 
         self.board_shot = self.board_maker()
         self.board_get = self.board_maker()
         self.protect_zone = []
@@ -186,7 +186,7 @@ class Ai(Player):
 
             while len(ship) != size:
                 i += 1
-                el = self.row_key[index_el + 1].strip() + column
+                el = self.row_key[index_el + i].strip() + column
                 ship.append(el)
 
 
@@ -225,20 +225,12 @@ class Batleship:
     # Tworzenie graczy
     def create_player(self):
         print("---GRA W STATKI---")
-        players = input("Wybierz typ gry:\n 1 - gra z drugim graczem,\n 0 lub dowolny inny symbol - gra z komputerem \n\nTwój wybór:")
-        if players == "1":
-            players = []
-            for i in range(2):
-                name = input(f"Podaj imię gracza nr. {i+1}: ")
-                players.append(Player(name))
-        else:
-            players = []
-            name = input(f"Podaj imię gracza nr. 1: ")
-            players.append(Player(name))
-            players.append(Ai("Ai")) #zamienić kolejnościa z player
-
-            
+        players = []
+        name = input(f"Podaj imię gracza nr. 1: ")
+        players.append(Ai("Ai")) #zamienić kolejnościa z player
+        players.append(Player(name))
         
+
         return(players)
 
     # Zmiana graczy 
@@ -393,24 +385,30 @@ class Batleship:
         print("Rozpoczynamy grę! Podawaj koordynaty gdzie twoja załoga ma strzelać (np. A1)",end='\n')
         
         active_player = self.players[0]
-        
+        no_active = self.players[1]
         while self.players[0].ships != [] or self.players[1].ships != []:
             
             if active_player.name != "Ai":
                 print(f"Strzały oddaje {active_player.name}")
                 active_player.print_board(active_player.board_shot)
                 shot = [input("Podaj koordynaty statku przeciwnika: ").upper()]
+                get = ""
+                for ship in no_active.ships:
+                    for el in ship:
+                        if shot[0] == el:
+                            ship.remove(el)
+                            get = shot
+                            ship_remove = ship
                 
-                [get, ship_remove]  = active_player.check_shot(shot[0])
                 os.system("cls")
                             
                 if get != "":
-                    ship_remove.remove(shot[0])
+                    print(no_active.ships)
                     print(f"Gratulację! Gracz {active_player.name} trafił!")
                     active_player.draw_ship(shot,active_player.board_shot,1,0)
                 
                     if len(ship_remove) == 0:
-                        active_player.ships.remove([])
+                        no_active.ships.remove([])
                         print("UWAGA STATEK ZATONĄŁ!")
                         
                     print("Przysługuje mu kolejny strzał!")
@@ -429,6 +427,9 @@ class Batleship:
                 print("AI")
                 row = random.choice(active_player.row_key).strip()
                 break
+            
+        os.system("cls")
+        print(123)
 
 
                 
