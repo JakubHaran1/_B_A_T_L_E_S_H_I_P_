@@ -10,7 +10,7 @@ class Player:
     
     def __init__(self, name):
         self.name = name
-        self.ships = [['D5'], ['E8'], ['I2'], ['E3'], ['A4', 'A5'], ['C2', 'D2'], ['I7', 'I8'], ['C6', 'C7', 'C8'], ['F4', 'G4', 'H4'], ['E1', 'F1', 'G1', 'H1']] #wyczyścić 
+        self.ships = [['J10', 'J9'], ['E8'], ['I2'], ['E3'], ['A4', 'A5'], ['C2', 'D2'], ['I7', 'I8'], ['C6', 'C7', 'C8'], ['F4', 'G4', 'H4'], ['E1', 'F1', 'G1', 'H1']] #wyczyścić 
         self.board_shot = self.board_maker()
         self.board_get = self.board_maker()
         self.protect_zone = []
@@ -157,6 +157,10 @@ class Ai(Player):
     def __init__(self,name):
         super().__init__(name)
         self.stategy = False
+        self.first_shot = ""
+        self.direction = "" #bazowa zmienna kierunku
+        self.wrong_directions = [""] #będą tu znajdywać się niewłaściwe kierunki dla danego pierwszego strzału aby wyeliminować sprawdzanie kilku krotne
+        self.correct_direction = "" #poprawny kierunek
     
     def create_ship(self, orientation):
         # Dodać sprawdzanie czy nie jest już zajęte pole i czy nie znajduje się w safety field!
@@ -194,13 +198,77 @@ class Ai(Player):
 
         return ship
     
+    def check_direction(self):
+        # losuj kierunek do momentu aż nie będzie w wrong direction
+        while self.direction in self.wrong_directions:
+            if self.first_shot[0][:1] == "A":
+                if self.first_shot[0][1:] == "1":
+                    self.direction = random.choice(["bottom","right"])
+                    
+                elif self.first_shot[0][1:] == "10":
+                    self.direction = random.choice(["bottom","left"])
+                    
+                else: self.direction = random.choice(["bottom","left","right"])
+
+            elif self.first_shot[0][:1] == "J":
+
+                    if self.first_shot[0][1:] == "1":
+                        self.direction = random.choice(["top","right"])
+                        
+                    elif self.first_shot[0][1:] == "10":
+                        self.direction = random.choice([ "top", "left"])
+                        print(self.direction)
+                    
+                    else: self.direction = random.choice(["top","left","right"])
+            else:
+                    self.direction = random.choice(["bottom","top","left","right"])
+
+    def aiming(self,shot_type):
+        
+        shot = ""
+        if self.direction == "top":
+            row = self.row_key.index(f" {shot_type[0][:1]} ")
+            row = self.row_key[row - 1].strip()
+            shot = row + shot_type[0][1:]
+
+        elif self.direction == "bottom":
+            row = self.row_key.index(f" {shot_type[0][:1]} ")
+            row = self.row_key[row + 1].strip()
+            shot = row + shot_type[0][1:]
+            print(shot)#do wywalenia
+        
+        elif self.direction == "right":
+            column = self.column_key.index(f"{shot_type[0][1:]} ")
+            column = self.column_key[column + 1].strip()
+            shot = shot_type[0][:1] + column
+            print(shot) #do wywalenia
+
+        elif self.direction == "left":
+            column = self.column_key.index(f"{shot_type[0][1:]} ")
+            column = self.column_key[column - 1].strip()
+            shot = shot_type[0][:1] + column
+        
+        
+
+        return shot
+
     def shooting_ai(self):
+        shot = ""
         #strzelanie losowe
         if self.stategy == False:
             shot = random.choice(self.row_key).strip()
             shot = shot + random.choice(self.column_key).strip()
+            shot = 'J10'
+            
         
+        elif self.stategy == "I":
+            # Sprawdzanie w którym kierunku strzelać
+            self.check_direction()
+            shot = self.aiming(self.first_shot)
+
         return [shot]
+        
+        
 
     #strzelanie 
     #losowanie czy column czy row
@@ -399,23 +467,30 @@ class Batleship:
             print(f"Strzały oddaje {active_player.name}")
             active_player.print_board(active_player.board_shot)
             get = ""
-
+            shot = ""
             if active_player.name != "Ai":
                 shot = [input("Podaj koordynaty statku przeciwnika: ").upper()]
                 
             else:
                 print("AI")
                 # TWORZENIE STRZAŁÓW W ZALEŻNOŚCI OD ZMIENNYCH
+                # 1.Losowy strzał
+                # 2. Sprawdzanie kierunku 
                 shot = active_player.shooting_ai()
                 print(shot)
                 
 
             for ship in no_active.ships:
+                if get != "":
+                    break #aby po znalezieniu juz nie sprawdzało
                 for el in ship:
                     if shot[0] == el:
                         ship.remove(el)
                         get = shot
                         ship_remove = ship
+                        break
+                    
+                
                 
             os.system("cls")
                         
@@ -429,17 +504,30 @@ class Batleship:
                     
                 print("Przysługuje mu kolejny strzał!")
 
-                # Zmiana zmiennych w zależności czy traf czy nie
-                # Dla losowych strzałów:
-                if active_player.stategy == False:
-                    active_player.stategy == "I" #przechodzenie do sprawdzania kierunku
+                # Zmiana zmiennych w zależności czy traf 
+                
+                if active_player.name == "Ai":
+                    # Dla losowych strzałów:
+                    if active_player.stategy == False:
+                        active_player.stategy = "I" #przechodzenie do sprawdzania kierunku
+                        active_player.first_shot = shot
+                        
+                        # Dla sprawdzania kierunku
+                    elif active_player.stategy == "I":
+                        active_player.stategy = "II" #Przechodzenie do zatapiania statku
+                        active_player.correct_direction = active_player.direction #Zapisywanie właściwego kierunku
+
             else:
                 print("Pudło!!",end='\n')
                 active_player.draw_ship(shot,active_player.board_get, 1, 1)
                 active_player.print_board(active_player.board_get)
                 print("Następuje zmiana gracza...")
-                # Zmiana zmiennych w zależności czy traf czy nie
+                # Zmiana zmiennych w zależności  czy nie TRAF
                 # Dla losowych strzałów: brak 
+                # Dla sprawdzania kierunku
+                if active_player.name == "Ai":
+                    if active_player.stategy == "I":
+                        active_player.wrong_directions.append(active_player.direction)
 
                 [active_player, no_active] = self.switch_player(active_player)
                     
