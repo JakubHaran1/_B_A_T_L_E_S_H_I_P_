@@ -154,14 +154,3 @@ class Ai(Player):
 
         self.fired_field.append(shot)
         return [shot]
-        
-        
-
-    #strzelanie 
-    #losowanie czy column czy row
-    # potem losowanie columny lub row 
-    # gdy traf 
-        # (zapamiętaj traf) 
-        #  spróbuj w lewo/prawo/góra dół / gdy traf idziesz w dół...
-        # gdy nie traf zacznij od prawo/góra - to co ostatnio nie było traf 
-    
