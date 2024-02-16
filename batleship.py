@@ -138,7 +138,7 @@ class Player:
                 elif shot ==1 and miss == 0: arr[value-1] = "🔥 "
                 elif shot == 1 and miss == 1: arr[value-1] = "🚩 "
         except:
-            print("Nie właściwy strzał - Nie można nanieść strzału na plansze...")
+            print("Nie właściwy strzał - nie można nanieść strzału na plansze...")
     
     def check_shot(self,shot):
         for ship in self.ships:
@@ -166,6 +166,7 @@ class Ai(Player):
         self.direction = "" #bazowa zmienna kierunku
         self.wrong_directions = [""] #będą tu znajdywać się niewłaściwe kierunki dla danego pierwszego strzału aby wyeliminować sprawdzanie kilku krotne
         self.correct_direction = "" #poprawny kierunek
+        self.sink_ship = False
     
     def create_ship(self, orientation):
         # Dodać sprawdzanie czy nie jest już zajęte pole i czy nie znajduje się w safety field!
@@ -222,7 +223,7 @@ class Ai(Player):
                         
                     elif self.first_shot[0][1:] == "10":
                         self.direction = random.choice([ "top", "left"])
-                        print(self.direction)
+                        
                     
                     else: self.direction = random.choice(["top","left","right"])
             else:
@@ -240,7 +241,7 @@ class Ai(Player):
             row = self.row_key.index(f" {shot_type[0][:1]} ")
             row = self.row_key[row + 1].strip()
             shot = row + shot_type[0][1:]
-            print(shot)#do wywalenia
+            
         
         elif direction == "right":
             column = self.column_key.index(f"{shot_type[0][1:]} ")
@@ -248,7 +249,7 @@ class Ai(Player):
             shot = shot_type[0][:1] + column
 
 
-            print(shot) #do wywalenia
+            
 
         elif direction == "left":
             column = self.column_key.index(f"{shot_type[0][1:]} ")
@@ -259,9 +260,7 @@ class Ai(Player):
 
         return shot
     
-    def sink_ship(self,curr_shot,corr_direction):
-        shot = self.aiming(curr_shot,corr_direction)
-        return shot
+    
 
     def shooting_ai(self):
         shot = ""
@@ -277,7 +276,8 @@ class Ai(Player):
             self.check_direction()
             shot = self.aiming(self.first_shot, self.direction)
         elif self.stategy == "II":
-            shot = self.sink_ship(self.current_shot,self.correct_direction)
+            
+            shot = self.aiming(self.current_shot,self.correct_direction)
         
         elif self.stategy == "III":
             match self.correct_direction:
@@ -291,7 +291,8 @@ class Ai(Player):
                     self.correct_direction = "left"
             
             
-            shot = self.sink_ship(self.current_shot, self.correct_direction)
+            
+            shot = self.aiming(self.current_shot,self.correct_direction)
 
 
         return [shot]
@@ -482,8 +483,7 @@ class Batleship:
                     except Exception:
                         continue
 
-                print(f" player ships {player.ships}") #do wywalnia
-                print(f' protect_ship {player.protect_zone}') #do wywalnia
+                
                 
     def play_game(self):
         os.system("cls")
@@ -592,7 +592,7 @@ class Batleship:
            
             
         os.system("cls")
-        print(123)
+        
 
 
                 
