@@ -10,7 +10,8 @@ class Player:
     
     def __init__(self, name):
         self.name = name
-        self.ships = [['J10', 'J9'], ['E8'], ['I2'], ['E3'], ['A4', 'A5'], ['C2', 'D2'], ['I7', 'I8'], ['C6', 'C7', 'C8'], ['F4', 'G4', 'H4'], ['E1', 'F1', 'G1', 'H1']] #wyczyścić 
+       
+        self.ships = [['F3'], ['A6'], ['D1'], ['H9'], ['F7', 'F8'], ['C7', 'D7'], ['H4', 'I4'], ['C2', 'C3', 'C4'], ['H2', 'I2', 'J2'], ['D5', 'E5', 'F5', 'G5']] #wyczyścić 
         self.board_shot = self.board_maker()
         self.board_get = self.board_maker()
         self.protect_zone = []
@@ -158,6 +159,7 @@ class Ai(Player):
         super().__init__(name)
         self.stategy = False
         self.first_shot = ""
+        self.current_shot = ""
         self.direction = "" #bazowa zmienna kierunku
         self.wrong_directions = [""] #będą tu znajdywać się niewłaściwe kierunki dla danego pierwszego strzału aby wyeliminować sprawdzanie kilku krotne
         self.correct_direction = "" #poprawny kierunek
@@ -223,27 +225,29 @@ class Ai(Player):
             else:
                     self.direction = random.choice(["bottom","top","left","right"])
 
-    def aiming(self,shot_type):
+    def aiming(self,shot_type,direction):
         
         shot = ""
-        if self.direction == "top":
+        if direction == "top":
             row = self.row_key.index(f" {shot_type[0][:1]} ")
             row = self.row_key[row - 1].strip()
             shot = row + shot_type[0][1:]
 
-        elif self.direction == "bottom":
+        elif direction == "bottom":
             row = self.row_key.index(f" {shot_type[0][:1]} ")
             row = self.row_key[row + 1].strip()
             shot = row + shot_type[0][1:]
             print(shot)#do wywalenia
         
-        elif self.direction == "right":
+        elif direction == "right":
             column = self.column_key.index(f"{shot_type[0][1:]} ")
             column = self.column_key[column + 1].strip()
             shot = shot_type[0][:1] + column
+
+
             print(shot) #do wywalenia
 
-        elif self.direction == "left":
+        elif direction == "left":
             column = self.column_key.index(f"{shot_type[0][1:]} ")
             column = self.column_key[column - 1].strip()
             shot = shot_type[0][:1] + column
@@ -252,8 +256,9 @@ class Ai(Player):
 
         return shot
     
-    def sink_ship(self):
-        pass
+    def sink_ship(self,curr_shot,corr_direction):
+        shot = self.aiming(curr_shot,corr_direction)
+        return shot
 
     def shooting_ai(self):
         shot = ""
@@ -261,13 +266,30 @@ class Ai(Player):
         if self.stategy == False:
             shot = random.choice(self.row_key).strip()
             shot = shot + random.choice(self.column_key).strip()
-            shot = 'A5'
+            shot = 'F5'
             
         
         elif self.stategy == "I":
             # Sprawdzanie w którym kierunku strzelać
             self.check_direction()
-            shot = self.aiming(self.first_shot)
+            shot = self.aiming(self.first_shot, self.direction)
+        elif self.stategy == "II":
+            shot = self.sink_ship(self.current_shot,self.correct_direction)
+        
+        elif self.stategy == "III":
+            match self.correct_direction:
+                case "top":
+                    self.correct_direction = "bottom"
+                case "left":
+                    self.correct_direction = "right"
+                case "bottom":
+                    self.correct_direction = "top"
+                case "right":
+                    self.correct_direction = "left"
+            
+            
+            shot = self.sink_ship(self.current_shot, self.correct_direction)
+
 
         return [shot]
         
@@ -469,7 +491,7 @@ class Batleship:
         while self.players[0].ships != [] or self.players[1].ships != []:
             print(f"Strzały oddaje {active_player.name}")
             active_player.print_board(active_player.board_shot)
-            print(active_player.board_shot)
+            
             get = ""
             shot = ""
             if active_player.name != "Ai":
@@ -499,14 +521,17 @@ class Batleship:
                 print(f"Gratulację! Gracz {active_player.name} trafił!")
                 active_player.draw_ship(shot,active_player.board_shot,1,0)
                 active_player.print_board(active_player.board_shot)
-                next_step = input("Enter aby przejść dalej...")
-                print(active_player.board_shot)
+                
+                
                 if len(ship_remove) == 0:
                     no_active.ships.remove([])
                     print("UWAGA STATEK ZATONĄŁ!")
+                    # Resetowanie strategii gdy statek zatonął
+                    if active_player.name == "Ai":
+                        active_player.sink_ship = True
                     
                 print("Przysługuje mu kolejny strzał!")
-
+                next_step = input("Enter aby przejść dalej...")
                 # Zmiana zmiennych w zależności czy traf 
                 
                 if active_player.name == "Ai":
@@ -519,7 +544,18 @@ class Batleship:
                         # Dla sprawdzania kierunku
                     elif active_player.stategy == "I":
                         active_player.stategy = "II" #Przechodzenie do zatapiania statku
-                        active_player.correct_direction = active_player.direction #Zapisywanie właściwego kierunku
+                        #Zapisywanie właściwego kierunku
+                        active_player.correct_direction = active_player.direction 
+                        # Zapisywanie current shot - potrzebne do funkcji zatapiającej
+                        active_player.current_shot = shot
+                        print(active_player.current_shot)
+                        # Dla zatapiania statku i poprawania zatapiania
+                    elif active_player.stategy == "II" or active_player.stategy == "III":
+                        active_player.current_shot = shot
+
+                        if active_player.sink_ship == True:
+                            active_player.stategy = False
+                        
 
             else:
                 print("Pudło!!",end='\n')
@@ -533,6 +569,10 @@ class Batleship:
                 if active_player.name == "Ai":
                     if active_player.stategy == "I":
                         active_player.wrong_directions.append(active_player.direction)
+                    # Dla zatapiania statku
+                    elif active_player.stategy == "II":
+                        active_player.current_shot = active_player.first_shot
+                        active_player.stategy = "III"
 
                 [active_player, no_active] = self.switch_player(active_player)
             
