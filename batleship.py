@@ -127,15 +127,18 @@ class Player:
                 self.add_protect_field(max_value, self.row_key[index_el + 1].strip(), max_value[1:])
 
     def draw_ship(self,ship,board,shot,miss):
-        arr =""
-        for el in ship:
-            # dodać try aby nie wywalało errora jak w złej kolejności
-            key = el[:1]
-            value = int(el[1:])
-            arr = board[f" {key} "]
-            if shot == 0: arr[value-1] = "🚢 "
-            elif shot ==1 and miss == 0: arr[value-1] = "🔥 "
-            elif shot == 1 and miss == 1: arr[value-1] = "🚩 "
+        try:
+            arr =""
+            for el in ship:
+                # dodać try aby nie wywalało errora jak w złej kolejności
+                key = el[:1]
+                value = int(el[1:])
+                arr = board[f" {key} "]
+                if shot == 0: arr[value-1] = "🚢 "
+                elif shot ==1 and miss == 0: arr[value-1] = "🔥 "
+                elif shot == 1 and miss == 1: arr[value-1] = "🚩 "
+        except:
+            print("Nie właściwy strzał - Nie można nanieść strzału na plansze...")
     
     def check_shot(self,shot):
         for ship in self.ships:
@@ -503,7 +506,7 @@ class Batleship:
                 # 1.Losowy strzał
                 # 2. Sprawdzanie kierunku 
                 shot = active_player.shooting_ai()
-                print(shot)
+                print(f"to jest strzał AI: {shot}")
                 
 
             for ship in no_active.ships:
