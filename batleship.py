@@ -251,6 +251,9 @@ class Ai(Player):
         
 
         return shot
+    
+    def sink_ship(self):
+        pass
 
     def shooting_ai(self):
         shot = ""
@@ -258,7 +261,7 @@ class Ai(Player):
         if self.stategy == False:
             shot = random.choice(self.row_key).strip()
             shot = shot + random.choice(self.column_key).strip()
-            shot = 'J10'
+            shot = 'A5'
             
         
         elif self.stategy == "I":
@@ -466,6 +469,7 @@ class Batleship:
         while self.players[0].ships != [] or self.players[1].ships != []:
             print(f"Strzały oddaje {active_player.name}")
             active_player.print_board(active_player.board_shot)
+            print(active_player.board_shot)
             get = ""
             shot = ""
             if active_player.name != "Ai":
@@ -491,13 +495,12 @@ class Batleship:
                         break
                     
                 
-                
-            os.system("cls")
-                        
             if get != "":
                 print(f"Gratulację! Gracz {active_player.name} trafił!")
                 active_player.draw_ship(shot,active_player.board_shot,1,0)
-            
+                active_player.print_board(active_player.board_shot)
+                next_step = input("Enter aby przejść dalej...")
+                print(active_player.board_shot)
                 if len(ship_remove) == 0:
                     no_active.ships.remove([])
                     print("UWAGA STATEK ZATONĄŁ!")
@@ -512,6 +515,7 @@ class Batleship:
                         active_player.stategy = "I" #przechodzenie do sprawdzania kierunku
                         active_player.first_shot = shot
                         
+                        
                         # Dla sprawdzania kierunku
                     elif active_player.stategy == "I":
                         active_player.stategy = "II" #Przechodzenie do zatapiania statku
@@ -519,8 +523,9 @@ class Batleship:
 
             else:
                 print("Pudło!!",end='\n')
-                active_player.draw_ship(shot,active_player.board_get, 1, 1)
-                active_player.print_board(active_player.board_get)
+                active_player.draw_ship(shot,active_player.board_shot, 1, 1)
+                active_player.print_board(active_player.board_shot)
+                next_step = input("Enter aby przejść dalej...")
                 print("Następuje zmiana gracza...")
                 # Zmiana zmiennych w zależności  czy nie TRAF
                 # Dla losowych strzałów: brak 
@@ -530,6 +535,8 @@ class Batleship:
                         active_player.wrong_directions.append(active_player.direction)
 
                 [active_player, no_active] = self.switch_player(active_player)
+            
+            
                     
 
          
