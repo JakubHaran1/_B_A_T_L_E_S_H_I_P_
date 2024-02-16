@@ -1,1 +1,2 @@
-aiming
+
+    def __init__(self):

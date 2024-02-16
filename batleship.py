@@ -1,345 +1,21 @@
 import os
 import random
-import time
-
-
-class Player:
-    row_key = [" A "," B "," C "," D "," E " ," F "," G "," H "," I "," J "]
-    column_key = ["1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 ","10 "]
-    banned_symbols = ["<",".",">","?","/",";",":",'""',"[","{","]","}","\\","+","=","-","_",")","(","*","&","^","%","$","#","@","!","`","~","''"]
-    
-    def __init__(self, name):
-        self.name = name
-       
-        self.ships = [] #wyczyścić 
-        self.board_shot = self.board_maker()
-        self.board_get = self.board_maker()
-        self.protect_zone = []
-
-    # Inicjacja tablicy
-    def board_maker(self):
-        row_value = []
-        board = {}
-        
-        # Wypełnianie tablicy
-        for i in range(10): #liczba kolumn i wierszy
-            board[self.row_key[i]] = ["|0|"] * 10
-            
-        return board
-
-    # Wyświetlanie tablicy
-    def print_board(self,board):
-        # Wyświetlanie zmiennych kolumnowych
-        print("   ",*self.column_key)
-        for row in self.row_key: 
-            print(row, end="")
-            for el in board[row]:
-                print(el,end="")
-            print()
-            
-        print()
-    
-    #funkcja określająca typ statku na podstawie aktualnej długości głównej tablicy statkowej
-    def type_ship(self,length_ship):
-        category = 0
-
-        if length_ship < 4:
-            category = 1
-        elif length_ship < 7:
-            category = 2
-        elif length_ship < 9:
-            category = 3
-        elif length_ship == 9:
-            category = 4
-        
-        return category
-
-    def add_protect_field(self,zone,arr,el):
-        zone = arr.strip() + el.strip()
-        self.protect_zone.append(zone)
-
-    def field_protector(self,orientation,ship):
-        min_value = ship[0]
-        max_value = ship[0]
-        index_el = ""
-        first_zone = ""
-        second_zone = ""
-
-        # Wyliczanie zabezpieczonych pól:
-        if orientation == "row":
-
-            # Ustalanie wartości
-            for el in ship:
-                #Znalezienie najmniejszej i największej wartości (w zależności od orientacji) 
-                if int(min_value[1:]) > int(el[1:]): min_value = el
-                else: max_value = el
-            
-                # Zmienna pomocnicza do wyliczenia górnego i dolnego bezpiecznego pola 
-                index_el = self.row_key.index(f" {el[:1]} ")
-                
-                # Wyliczanie górnego pola
-                if index_el != 0:
-                    self.add_protect_field(first_zone, self.row_key[index_el - 1 ], el[1:])
-                    
-                # Wyliczanie dolnego pola
-                if index_el != len(self.row_key) - 1:
-                    self.add_protect_field(second_zone, self.row_key[index_el + 1 ], el[1:])
-                    
-                    
-            # Wyliczanie "dodatkowych" bocznych pól
-            # Pole lewe skrajne
-            index_el = self.column_key.index(f"{min_value[1:].strip()} ")
-            if index_el != 0:
-                self.add_protect_field(min_value, min_value[:1], self.column_key[index_el - 1].strip())
-                
-            
-            # Pole prawe skrajne
-            index_el = self.column_key.index(f"{max_value[1:].strip()} ")
-            if index_el != len(self.column_key) - 1:
-                self.add_protect_field(max_value, max_value[:1], self.column_key[index_el + 1].strip())
-        else:  
-            for el in ship:
-                
-                #Znalezienie najmniejszej i największej wartości (w zależności od orientacji)
-                if min_value[:1] > el[:1]: min_value = el
-                else: max_value = el
-
-                # Zmienna pomocnicza do wyliczenia lewego i prawego bezpiecznego pola 
-                index_el = self.column_key.index(f"{el[1:]} ")
-                
-                # wyliczenie lewego zabezpieczonego pola
-                if index_el != 0:
-                    self.add_protect_field(first_zone ,el[:1], self.column_key[index_el - 1 ] )
-                
-                # Wyliczanie prawego zabezpieczonego pola
-                if index_el != len(self.column_key) - 1:
-                    self.add_protect_field(second_zone, el[:1], self.column_key[index_el + 1 ])
-
-            # Wyliczanie "dodatkowego" górnego i dolnego pola
-            # Pole górne
-            index_el = self.row_key.index(f" {min_value[:1]} ")
-            if index_el != 0:
-                self.add_protect_field(min_value, self.row_key[index_el - 1].strip(), min_value[1:])
-
-            # Pole dolne 
-            index_el = self.row_key.index(f" {max_value[:1]} ")
-            if index_el != len(self.row_key) - 1:
-                self.add_protect_field(max_value, self.row_key[index_el + 1].strip(), max_value[1:])
-
-    def draw_ship(self,ship,board,shot,miss):
-        try:
-            arr =""
-            for el in ship:
-                # dodać try aby nie wywalało errora jak w złej kolejności
-                key = el[:1]
-                value = int(el[1:])
-                arr = board[f" {key} "]
-                if shot == 0: arr[value-1] = "🚢 "
-                elif shot ==1 and miss == 0: arr[value-1] = "🔥 "
-                elif shot == 1 and miss == 1: arr[value-1] = "🚩 "
-        except:
-            print("Nie właściwy strzał - nie można nanieść strzału na plansze...")
-    
-    def check_shot(self,shot):
-        for ship in self.ships:
-            for el in ship:
-                if shot == el:
-                    get = shot
-                    ship_remove = ship
-                    return [get,ship_remove]
-               
-        get = ""
-        ship_remove = "False"
-        return [get, ship_remove ]
-
-
+from player import Player
+from ai import Ai
 
                     
-            
-
-class Ai(Player):
-    def __init__(self,name):
-        super().__init__(name)
-        self.stategy = False
-        self.first_shot = ""
-        self.current_shot = ""
-        self.direction = "" #bazowa zmienna kierunku
-       
-        self.correct_direction = "" #poprawny kierunek
-        self.sink_ship = False
-        self.fired_field = [""]
-        self.wrong_directions = [""] #będą tu znajdywać się niewłaściwe kierunki dla danego pierwszego strzału aby wyeliminować sprawdzanie kilku krotne
-    
-    def create_ship(self, orientation):
-        # Dodać sprawdzanie czy nie jest już zajęte pole i czy nie znajduje się w safety field!
-        size = self.type_ship(len(self.ships))
-        ship = []
-        first_el = ""
-        c = True
-        while c == True:
-            # Inicjacja pierwszego elementu statku:
-            row = random.choice(self.row_key).strip()
-            column = random.choice(self.column_key).strip()
-            if int(column) + size <= len(self.column_key):
-                first_el = row + column
-                c = False
-                ship.append(first_el)
-
-        if orientation == "row" and size > 1:
-            #Dołączanie kolejnych elementów składowych statku:
-            i = 0
-            while len(ship) != size:
-                i+=1
-                el = row + str(int(column) + i)
-                ship.append(el)
-
-        elif orientation == "column" and size > 1:
-            i = 0
-            index_el = self.row_key.index(f" {row} ")
-
-            while len(ship) != size:
-                i += 1
-                el = self.row_key[index_el + i].strip() + column
-                ship.append(el)
-
-
-
-        return ship
-    
-    def reset_strategy(self):
-        self.stategy = False
-        self.first_shot = ""
-        self.current_shot = ""
-        self.direction = "" #bazowa zmienna kierunku
-        self.correct_direction = "" #poprawny kierunek
-        self.sink_ship = False  
-        self.wrong_directions = [""]
-
-
-
-
-    def check_direction(self):
-        # losuj kierunek do momentu aż nie będzie w wrong direction
-        while self.direction in self.wrong_directions:
-            if self.first_shot[0][:1] == "A":
-                if self.first_shot[0][1:] == "1":
-                    self.direction = random.choice(["bottom","right"])
-                    
-                elif self.first_shot[0][1:] == "10":
-                    self.direction = random.choice(["bottom","left"])
-                    
-                else: self.direction = random.choice(["bottom","left","right"])
-
-            elif self.first_shot[0][:1] == "J":
-
-                    if self.first_shot[0][1:] == "1":
-                        self.direction = random.choice(["top","right"])
-                        
-                    elif self.first_shot[0][1:] == "10":
-                        self.direction = random.choice([ "top", "left"])
-                        
-                    
-                    else: self.direction = random.choice(["top","left","right"])
-            else:
-                    self.direction = random.choice(["bottom","top","left","right"])
-
-    def aiming(self,shot_type,direction):
-        
-        shot = ""
-        if direction == "top":
-            row = self.row_key.index(f" {shot_type[0][:1]} ")
-            row = self.row_key[row - 1].strip()
-            shot = row + shot_type[0][1:]
-
-        elif direction == "bottom":
-            row = self.row_key.index(f" {shot_type[0][:1]} ")
-            row = self.row_key[row + 1].strip()
-            shot = row + shot_type[0][1:]
-            
-        
-        elif direction == "right":
-            column = self.column_key.index(f"{shot_type[0][1:]} ")
-            column = self.column_key[column + 1].strip()
-            shot = shot_type[0][:1] + column
-
-
-            
-
-        elif direction == "left":
-            column = self.column_key.index(f"{shot_type[0][1:]} ")
-            column = self.column_key[column - 1].strip()
-            shot = shot_type[0][:1] + column
-        
-        
-
-        return shot
-    
-    
-
-    def shooting_ai(self):
-        shot = ""
-        #strzelanie losowe
-        if self.stategy == False:
-            while shot in self.fired_field:
-                shot = random.choice(self.row_key).strip()
-                shot = shot + random.choice(self.column_key).strip()
-                
-                
-            
-        
-        elif self.stategy == "I":
-            # Sprawdzanie w którym kierunku strzelać
-            self.check_direction()
-            shot = self.aiming(self.first_shot, self.direction)
-        elif self.stategy == "II":
-            
-            shot = self.aiming(self.current_shot,self.correct_direction)
-        
-        elif self.stategy == "III":
-            match self.correct_direction:
-                case "top":
-                    self.correct_direction = "bottom"
-                case "left":
-                    self.correct_direction = "right"
-                case "bottom":
-                    self.correct_direction = "top"
-                case "right":
-                    self.correct_direction = "left"
-            
-            shot = self.aiming(self.current_shot,self.correct_direction)
-
-        self.fired_field.append(shot)
-        return [shot]
-        
-        
-
-    #strzelanie 
-    #losowanie czy column czy row
-    # potem losowanie columny lub row 
-    # gdy traf 
-        # (zapamiętaj traf) 
-        #  spróbuj w lewo/prawo/góra dół / gdy traf idziesz w dół...
-        # gdy nie traf zacznij od prawo/góra - to co ostatnio nie było traf 
-    
-    
-                
-
-
-            
-
-    
-       
-        
-
             
 
 
 class Batleship:
     def __init__(self):
         self.players = self.create_player()
-        self.pre_game()
-        self.start_game() 
-        self.play_game()
+        accept = self.pre_game()
+        if accept == "1":
+            self.start_game() 
+            self.play_game()
+        else:
+            print("Jeśli nie akceptujesz warunków gry musimy się pożegnać!")
     
     def create_player(self):
         print("---GRA W STATKI---")
@@ -352,7 +28,7 @@ class Batleship:
         else:
             players = []
             name = input(f"Podaj imię gracza nr. 1: ")
-            players.append(Ai("Ai")) #zamienić kolejnościa z player
+            players.append(Ai("Ai")) 
             players.append(Player(name))
             
 
@@ -388,6 +64,7 @@ class Batleship:
         self.players[0].print_board(self.players[0].board_get)
         accept = input("czy akceptujesz zasady gry ? 1 - TAK; 0 - NIE: ")
         os.system("cls") 
+        return accept
 
 
 
@@ -513,7 +190,6 @@ class Batleship:
         active_player = self.players[0]
         no_active = self.players[1]
         while self.players[0].ships != [] and self.players[1].ships != []:
-            print(self.players[1].ships)
             print(f"Strzały oddaje {active_player.name}")
             active_player.print_board(active_player.board_shot)
             
@@ -611,18 +287,21 @@ class Batleship:
                         active_player.stategy = "III"
 
                 [active_player, no_active] = self.switch_player(active_player)
+                os.system("cls")
 
             
-            if self.players[0].ships == []:
-                print("--------------------------- ")
-                print(f"GRĘ W STATKI ZWYCIĘŻA: {self.players[0].name} ")
-                print("--------------------------- ")
-            else:
-                print("--------------------------- ")
-                print(f"GRĘ W STATKI ZWYCIĘŻA: {self.players[1].name} ")
-                print("--------------------------- ")
+        if self.players[1].ships == []:
+            os.system("cls")
+            print("--------------------------- ")
+            print(f"GRĘ W STATKI ZWYCIĘŻA: {self.players[0].name} ")
+            print("--------------------------- ")
+        else:
+            os.system("cls")
+            print("--------------------------- ")
+            print(f"GRĘ W STATKI ZWYCIĘŻA: {self.players[1].name} ")
+            print("--------------------------- ")
 
-        os.system("cls")
+        
         
 
 
