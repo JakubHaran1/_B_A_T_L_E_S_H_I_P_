@@ -11,7 +11,7 @@ class Player:
     def __init__(self, name):
         self.name = name
        
-        self.ships = [['F3'], ['A6'], ['D1'], ['H9'], ['F7', 'F8'], ['C7', 'D7'], ['H4', 'I4'], ['C2', 'C3', 'C4'], ['H2', 'I2', 'J2'], ['D5', 'E5', 'F5', 'G5']] #wyczyścić 
+        self.ships = [] #wyczyścić 
         self.board_shot = self.board_maker()
         self.board_get = self.board_maker()
         self.protect_zone = []
@@ -88,13 +88,13 @@ class Player:
                     
             # Wyliczanie "dodatkowych" bocznych pól
             # Pole lewe skrajne
-            index_el = self.column_key.index(f"{min_value[1:]} ")
+            index_el = self.column_key.index(f"{min_value[1:].strip()} ")
             if index_el != 0:
                 self.add_protect_field(min_value, min_value[:1], self.column_key[index_el - 1].strip())
                 
             
             # Pole prawe skrajne
-            index_el = self.column_key.index(f"{max_value[1:]} ")
+            index_el = self.column_key.index(f"{max_value[1:].strip()} ")
             if index_el != len(self.column_key) - 1:
                 self.add_protect_field(max_value, max_value[:1], self.column_key[index_el + 1].strip())
         else:  
@@ -340,19 +340,27 @@ class Batleship:
         self.pre_game()
         self.start_game() 
         self.play_game()
-        
-    # Tworzenie graczy
+    
     def create_player(self):
         print("---GRA W STATKI---")
-        players = []
-        name = input(f"Podaj imię gracza nr. 1: ")
-        players.append(Player(name))
-        players.append(Ai("Ai")) #Player pierwsze
-        
-        
+        players = input("Wybierz typ gry:\n 1 - gra z drugim graczem,\n 0 lub dowolny inny symbol - gra z komputerem \n\nTwój wybór:")
+        if players == "1":
+            players = []
+            for i in range(2):
+                name = input(f"Podaj imię gracza nr. {i+1}: ")
+                players.append(Player(name))
+        else:
+            players = []
+            name = input(f"Podaj imię gracza nr. 1: ")
+            players.append(Ai("Ai")) #zamienić kolejnościa z player
+            players.append(Player(name))
+            
 
+            
+        
         return(players)
-
+    # Tworzenie graczy
+    
     # Zmiana graczy 
     def switch_player(self, current):
         if current == self.players[0]:
@@ -387,13 +395,13 @@ class Batleship:
         for player in self.players:
             if player.name != "Ai":
                 while len(player.ships) != 10:
-                    print(f"Uwaga! Uzupełnianie tablicy celowniczej statkami gracza:{player.name}")
+                    print(f"Uwaga! \n Uzupełnianie tablicy celowniczej statkami gracza: {player.name}")
                     orientation = "row"
                     size = player.type_ship(len(player.ships))
                     print("To jest twoja tablica ze statkami:")
                     player.print_board(player.board_get)
                     ship = input(f"Podaj umiejscowienie statku o długości {size}: ")
-                    ship = ship.upper()
+                    ship = ship.upper().replace(" ","")
                     os.system('cls')
                     
                     try:
@@ -413,7 +421,6 @@ class Batleship:
                         for el in ship:
                             if player.ships.count(el) > 1: raise Exception(f"Wartość {el} występuje w deklaracji statku więcej niż jeden raz")
 
-                            el = el.replace(" ","")
                             if f" {el[:1]} " not in player.row_key:
                                 raise Exception(f"Niepoprawna wartość na pozycji wierszowej - {el[:1]} w {el}! Mają to być litery od A-J")
                             
@@ -427,7 +434,7 @@ class Batleship:
                                 if el in boat:
                                     raise Exception(f"Na pozycji {el} jest już umiejscowiony statek!")
 
-
+                        
                         # Ustalenie pozycji statku
                         if len(ship) > 1:
                             # Przypisywanie wiersza do zmiennej pomocniczej - row
@@ -505,7 +512,8 @@ class Batleship:
         
         active_player = self.players[0]
         no_active = self.players[1]
-        while self.players[0].ships != [] or self.players[1].ships != []:
+        while self.players[0].ships != [] and self.players[1].ships != []:
+            print(self.players[1].ships)
             print(f"Strzały oddaje {active_player.name}")
             active_player.print_board(active_player.board_shot)
             
@@ -603,14 +611,17 @@ class Batleship:
                         active_player.stategy = "III"
 
                 [active_player, no_active] = self.switch_player(active_player)
-            
-            
-                    
 
-         
             
-           
-            
+            if self.players[0].ships == []:
+                print("--------------------------- ")
+                print(f"GRĘ W STATKI ZWYCIĘŻA: {self.players[0].name} ")
+                print("--------------------------- ")
+            else:
+                print("--------------------------- ")
+                print(f"GRĘ W STATKI ZWYCIĘŻA: {self.players[1].name} ")
+                print("--------------------------- ")
+
         os.system("cls")
         
 
