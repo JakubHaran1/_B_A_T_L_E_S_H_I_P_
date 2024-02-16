@@ -3,9 +3,6 @@ import random
 from player import Player
 from ai import Ai
 
-                    
-            
-
 
 class Batleship:
     def __init__(self):
