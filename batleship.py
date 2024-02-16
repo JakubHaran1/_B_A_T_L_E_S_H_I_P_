@@ -550,12 +550,17 @@ class Batleship:
                         active_player.current_shot = shot
                         print(active_player.current_shot)
                         # Dla zatapiania statku i poprawania zatapiania
-                    elif active_player.stategy == "II" or active_player.stategy == "III":
+                    elif active_player.stategy == "II":
                         active_player.current_shot = shot
 
                         if active_player.sink_ship == True:
                             active_player.stategy = False
-                        
+
+                    elif  active_player.stategy == "III":
+                        active_player.stategy = "II"
+                        active_player.current_shot = shot
+                        if active_player.sink_ship == True:
+                            active_player.stategy = False
 
             else:
                 print("Pudło!!",end='\n')
