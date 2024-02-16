@@ -8,7 +8,7 @@ class Player:
     def __init__(self, name):
         self.name = name
        
-        self.ships = [['F3'], ['A6'], ['D1'], ['H9'], ['F7', 'F8'], ['C7', 'D7'], ['H4', 'I4'], ['C2', 'C3', 'C4'], ['H2', 'I2', 'J2'], ['D5', 'E5', 'F5', 'G5']] #wyczyścić 
+        self.ships = [] #wyczyścić 
         self.board_shot = self.board_maker()
         self.board_get = self.board_maker()
         self.protect_zone = []
