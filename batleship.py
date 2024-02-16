@@ -164,9 +164,11 @@ class Ai(Player):
         self.first_shot = ""
         self.current_shot = ""
         self.direction = "" #bazowa zmienna kierunku
-        self.wrong_directions = [""] #będą tu znajdywać się niewłaściwe kierunki dla danego pierwszego strzału aby wyeliminować sprawdzanie kilku krotne
+       
         self.correct_direction = "" #poprawny kierunek
         self.sink_ship = False
+        self.fired_field = [""]
+        self.wrong_directions = [""] #będą tu znajdywać się niewłaściwe kierunki dla danego pierwszego strzału aby wyeliminować sprawdzanie kilku krotne
     
     def create_ship(self, orientation):
         # Dodać sprawdzanie czy nie jest już zajęte pole i czy nie znajduje się w safety field!
@@ -204,6 +206,18 @@ class Ai(Player):
 
         return ship
     
+    def reset_strategy(self):
+        self.stategy = False
+        self.first_shot = ""
+        self.current_shot = ""
+        self.direction = "" #bazowa zmienna kierunku
+        self.correct_direction = "" #poprawny kierunek
+        self.sink_ship = False  
+        self.wrong_directions = [""]
+
+
+
+
     def check_direction(self):
         # losuj kierunek do momentu aż nie będzie w wrong direction
         while self.direction in self.wrong_directions:
@@ -266,9 +280,11 @@ class Ai(Player):
         shot = ""
         #strzelanie losowe
         if self.stategy == False:
-            shot = random.choice(self.row_key).strip()
-            shot = shot + random.choice(self.column_key).strip()
-            shot = 'F5'
+            while shot in self.fired_field:
+                shot = random.choice(self.row_key).strip()
+                shot = shot + random.choice(self.column_key).strip()
+                
+                
             
         
         elif self.stategy == "I":
@@ -290,11 +306,9 @@ class Ai(Player):
                 case "right":
                     self.correct_direction = "left"
             
-            
-            
             shot = self.aiming(self.current_shot,self.correct_direction)
 
-
+        self.fired_field.append(shot)
         return [shot]
         
         
@@ -542,6 +556,9 @@ class Batleship:
                     if active_player.stategy == False:
                         active_player.stategy = "I" #przechodzenie do sprawdzania kierunku
                         active_player.first_shot = shot
+
+                        if active_player.sink_ship == True:
+                            active_player.reset_strategy()
                         
                         
                         # Dla sprawdzania kierunku
@@ -552,18 +569,21 @@ class Batleship:
                         # Zapisywanie current shot - potrzebne do funkcji zatapiającej
                         active_player.current_shot = shot
                         print(active_player.current_shot)
+
+                        if active_player.sink_ship == True:
+                            active_player.reset_strategy()
                         # Dla zatapiania statku i poprawania zatapiania
                     elif active_player.stategy == "II":
                         active_player.current_shot = shot
 
                         if active_player.sink_ship == True:
-                            active_player.stategy = False
+                            active_player.reset_strategy()
 
                     elif  active_player.stategy == "III":
                         active_player.stategy = "II"
                         active_player.current_shot = shot
                         if active_player.sink_ship == True:
-                            active_player.stategy = False
+                            active_player.reset_strategy()
 
             else:
                 print("Pudło!!",end='\n')
